@@ -122,18 +122,4 @@ def get_planar_from_3D(pc:PointCloud) -> PlanarPointCloud:
         x.append(point[0])
         y.append(point[1])
     return PlanarPointCloud(X = np.array(x).reshape(-1, 1), Y = np.array(y ).reshape(-1, 1))
-    
-    
-# Example usage:
-with open('./data/pointcloud_data.pcd', 'rb') as file:
-    pcd_bytes = file.read()
-
-# print(pcd_bytes)
-point_cloud = decode_pcd_bytes(pcd_bytes)
-
-ppc = get_planar_from_3D(point_cloud)
-ppc.normalize_point_cloud()
-print(f"planar point cloud shape is {ppc.X.shape}")
-print(f"norm planar point cloud shape is {ppc.X_norm.shape}")
-ppc.plot_point_cloud(normalized=True)
 
