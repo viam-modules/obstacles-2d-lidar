@@ -12,7 +12,7 @@ from sklearn import linear_model
 
 # Robustly fit linear model with RANSAC algorithm
 def get_ransac(X, Y) -> linear_model.RANSACRegressor:
-    ransac = linear_model.RANSACRegressor(residual_threshold=.3)
+    ransac = linear_model.RANSACRegressor(residual_threshold=.2)
     ransac.fit(X, Y)
     return ransac
 

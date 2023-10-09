@@ -1,8 +1,10 @@
 
 
-
+from rotating_caliper import BoundingBox2D
 import numpy as np
 import matplotlib.pyplot as plt
+import math
+from viam.proto.common import GeometriesInFrame, Geometry
 
 def plot_point_cloud(X, Y):
     # Create a scatter plot of the points
@@ -54,4 +56,36 @@ def plot_inliers_and_outliers(X, Y, inlier_mask=None):
     # Show the plot
     plt.grid(True)
     plt.show() 
+    
+    
+def rotate_rectangle(vertices, angle_radians):
+    # Find the center of the rectangle
+    center_x = (vertices[0][0] + vertices[2][0]) / 2
+    center_y = (vertices[0][1] + vertices[2][1]) / 2
 
+    # Translate the rectangle to the origin
+    translated_vertices = [(x - center_x, y - center_y) for x, y in vertices]
+
+    # Rotate each vertex by the given angle
+    rotated_vertices = []
+    for x, y in translated_vertices:
+        new_x = x * math.cos(angle_radians) - y * math.sin(angle_radians)
+        new_y = x * math.sin(angle_radians) + y * math.cos(angle_radians)
+        rotated_vertices.append((new_x, new_y))
+
+    # Translate the rotated rectangle back to its original position
+    final_vertices = [(x + center_x, y + center_y) for x, y in rotated_vertices]
+
+    return final_vertices
+
+def plot_geometry(geo:Geometry):
+    A = [geo.center.x+geo.box.dims_mm.x/2, geo.center.y-geo.box.dims_mm.y/2]
+    B = [geo.center.x-geo.box.dims_mm.x/2, geo.center.y-geo.box.dims_mm.y/2]
+    C =  [geo.center.x-geo.box.dims_mm.x/2, geo.center.y+geo.box.dims_mm.y/2]
+    D =  [geo.center.x+geo.box.dims_mm.x/2, geo.center.y+geo.box.dims_mm.y/2]
+    li = [A,B, C, D]
+    li2 = rotate_rectangle(li, geo.center.theta)
+    li3 = [np.array(v) for v in li2]
+    poly3 = BoundingBox2D(li3)
+    poly3.plot()
+    

@@ -53,6 +53,7 @@ def plot_clusters(db: DBSCAN, X:np.ndarray):
         )
 
     # plt.title(f"Estimated number of clusters: {n_clusters_}")
+    plt.axis("equal")
     plt.show()
     
 class Point:

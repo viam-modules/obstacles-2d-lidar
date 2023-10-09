@@ -1,6 +1,6 @@
 import random
 import matplotlib.pyplot as plt
-
+import numpy as np
 class ConvexHull:
     def __init__(self, points):
         if not points:
@@ -29,8 +29,8 @@ class ConvexHull:
             while len(hull) > 2 and self.get_cross_product(hull[-3], hull[-2], hull[-1]) < 0:
                 hull.pop(-2)
         return hull
-
-    def plot_convex_hull(self):
+    
+    def plot(self):
         points = self.points
         x, y = zip(*points)
 
@@ -46,6 +46,20 @@ class ConvexHull:
         plt.ylabel('Y-axis')
         plt.title('Polygon Plot')
         # plt.show()
+        
+    def translate_convex_hull_in_first_quadrant(self):
+        points = np.array(self.points)
+        min_x = np.min(points[:,0])
+        if min_x <0:
+            self.min_x = min_x
+            points[:, 0] -= 3*min_x
+        min_y = np.min(points[:,1])
+        if min_y <0:
+            self.min_y = min_y
+            points[:, 1] -= 3*min_y
+
+        return points.tolist()
+
 
 # Example usage:
 # ch = ConvexHull([(1, 2), (3, 4), (5, 6)])

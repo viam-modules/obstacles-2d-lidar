@@ -1,118 +1,132 @@
 import numpy as np
 import math 
 import matplotlib.pyplot as plt
+from viam.proto.common import GeometriesInFrame, Geometry, RectangularPrism, PoseInFrame, Pose, Vector3
 
 
-def get_rotating_caliper_bbox_list(hull_points_2d):
-    """
-
-    hull_points_2d: array of hull points. each element should have [x,y] format
-    """
-
-    # Compute edges (x2-x1,y2-y1)
-    edges = np.zeros( (len(hull_points_2d)-1,2) ) # empty 2 column array
-    for i in range( len(edges) ):
-        edge_x = hull_points_2d[i+1,0] - hull_points_2d[i,0]
-        edge_y = hull_points_2d[i+1,1] - hull_points_2d[i,1]
-        edges[i] = [edge_x,edge_y]
-
-    # Calculate edge angles   atan2(y/x)
-    edge_angles = np.zeros( (len(edges)) ) # empty 1 column array
-    for i in range( len(edge_angles) ):
-        edge_angles[i] = np.arctan2( edges[i,1], edges[i,0] )
-
-    # Check for angles in 1st quadrant
-    for i in range( len(edge_angles) ):
-        edge_angles[i] = np.abs( edge_angles[i] % (np.pi/2) ) # want strictly positive answers
-    #print "Edge angles in 1st Quadrant: \n", edge_angles
-
-    # Remove duplicate angles
-    edge_angles = np.unique(edge_angles)
-    #print "Unique edge angles: \n", edge_angles
-
-    bbox_list=[]
-    for i in range( len(edge_angles) ):
-
-        # Create rotation matrix to shift points to baseline
-        # R = [ cos(theta)      , cos(theta-PI/2)
-        #       cos(theta+PI/2) , cos(theta)     ]
-        R = np.array([ [ np.cos(edge_angles[i]), np.cos(edge_angles[i]-(np.pi/2)) ], [ np.cos(edge_angles[i]+(np.pi/2)), np.cos(edge_angles[i]) ] ])
-
-        # Apply this rotation to convex hull points
-        rot_points = np.dot(R, np.transpose(hull_points_2d) ) # 2x2 * 2xn
-
-        # Find min/max x,y points
-        min_x = np.nanmin(rot_points[0], axis=0)
-        max_x = np.nanmax(rot_points[0], axis=0)
-        min_y = np.nanmin(rot_points[1], axis=0)
-        max_y = np.nanmax(rot_points[1], axis=0)
-
-        # Calculate height/width/area of this bounding rectangle
-        width = max_x - min_x
-        height = max_y - min_y
-        area = width*height
-
-
-        # Calculate center point and restore to original coordinate system
-        center_x = (min_x + max_x)/2
-        center_y = (min_y + max_y)/2
-        center_point = np.dot( [ center_x, center_y ], R )
-
-        # Calculate corner points and restore to original coordinate system
-        corner_points = np.zeros( (4,2) ) # empty 2 column array
-        corner_points[0] = np.dot( [ max_x, min_y ], R )
-        corner_points[1] = np.dot( [ min_x, min_y ], R )
-        corner_points[2] = np.dot( [ min_x, max_y ], R )
-        corner_points[3] = np.dot( [ max_x, max_y ], R )
-
-
-        bbox_info = [edge_angles[i], area, width, height, min_x, max_x, min_y, max_y, corner_points, center_point]
-        bbox_list.append(bbox_info)
-
-
-    return bbox_list
-
-
-
-def get_minimum_bounding_box(hull_points_2d):
+class Vector2d:
+    def __init__(self, end, start, norm=None) -> None:
+        self.end = end
+        self.start = start
+        self.coordinates = np.array([end[0]-start[0], end[1]-start[1]])
+        self.norm = norm
+        
+    def get_norm2(self):
+        if self.norm is None:
+            self.norm = np.linalg.norm(self.coordinates)
+        return self.norm
     
-    # Compute edges (x2-x1,y2-y1)
-    edges = np.zeros( (len(hull_points_2d)-1,2) ) # empty 2 column array
-    for i in range( len(edges) ):
-        edge_x = hull_points_2d[i+1,0] - hull_points_2d[i,0]
-        edge_y = hull_points_2d[i+1,1] - hull_points_2d[i,1]
-        edges[i] = [edge_x,edge_y]
-
-    # Calculate edge angles   atan2(y/x)
-    edge_angles = np.zeros( (len(edges)) ) # empty 1 column array
-    for i in range( len(edge_angles) ):
-        edge_angles[i] = np.arctan2( edges[i,1], edges[i,0] )
-
-    # Check for angles in 1st quadrant
-    for i in range( len(edge_angles) ):
-        edge_angles[i] = np.abs( edge_angles[i] % (np.pi/2) ) # want strictly positive answers
-    #print "Edge angles in 1st Quadrant: \n", edge_angles
-
-    # Remove duplicate angles
-    edge_angles = np.unique(edge_angles)
-    #print "Unique edge angles: \n", edge_angles
+    def get_angle(self):
+        if self.angle is None:
+            self.angle = np.arctan2(self.coordinates[1], self.coordinates[0])
     
-    min_area = math.inf 
-    for i in range( len(edge_angles) ):
+    
+    def is_colinear(self, vec) -> bool:
+        pd = self.coordinates.dot(vec.vector)
+        if abs(pd) != self.get_norm2() *vec.get_norm2():
+            return False
 
-        # Create rotation matrix to shift points to baseline
-        # R = [ cos(theta)      , cos(theta-PI/2)
-        #       cos(theta+PI/2) , cos(theta)     ]
-        R = np.array([ [ np.cos(edge_angles[i]), np.cos(edge_angles[i]-(np.pi/2)) ], [ np.cos(edge_angles[i]+(np.pi/2)), np.cos(edge_angles[i]) ] ])
 
-        # Apply this rotation to convex hull points
-        rot_points = np.dot(R, np.transpose(hull_points_2d) ) # 2x2 * 2xn
 
-        # Find min/max x,y points
-        min_x = np.nanmin(rot_points[0], axis=0)
-        max_x = np.nanmax(rot_points[0], axis=0)
-        min_y = np.nanmin(rot_points[1], axis=0)
-        max_y = np.nanmax(rot_points[1], axis=0)
+def angle_between_vectors(vector1:Vector2d, vector2:Vector2d):
+    dot_product = vector1.coordinates.dot(vector2.coordinates)
+    magnitude1 = vector1.get_norm2()
+    magnitude2 = vector2.get_norm2()
+
+    # Ensure that the magnitude is not zero to avoid division by zero
+    if magnitude1== 0 or magnitude2 == 0:
+        raise ValueError("Vectors cannot have zero magnitude")
+
+    cos_theta = dot_product / (magnitude1 * magnitude2)
+
+    # Use the cross product to determine the sign of the angle
+    cross_product = vector1.coordinates[0] * vector2.coordinates[1] - vector1.coordinates[1] * vector2.coordinates[0]
+    sine_theta = cross_product / (magnitude1 * magnitude2)
+
+    # Calculate the angle in radians
+    angle = math.atan2(sine_theta, cos_theta)
+    
+    return angle
+        
+        
+class BoundingBox2D:
+    def __init__(self, corners: list, min_x=None, max_x = None, min_y = None, max_y = None, area=None, center = None):
+        self.corners = corners
+        c_x, c_y = 0, 0
+        
+        for c in corners:
+            c_x += c[0]
+            c_y +=c[1]
+        self.center= [c_x/4, c_y/4]
+        self.area = area
+                
+    def get_area(self):
+        if self.area is None:
+            self.area = (self.max_x-self.min_x)*(self.max_y-self.min_y)
+        return self.area
+
+    
+    def get_first_longest_edge(self):
+        pass
+    
+    def get_angle_of_corner(self, corner:int):
+        '''return the angle of a corner'''
+        return angle_between_vectors(Vector2d(self.corners[(corner-1)%4], self.corners[corner]), Vector2d(self.corners[(corner+1)%4], self.corners[corner]))
+
+
+    def get_geometry(self) -> Geometry:
+        vec1 = Vector2d(self.corners[1], self.corners[0])
+        vec2= Vector2d(self.corners[3], self.corners[0])
+        x_rectangle = vec1.get_norm2()
+        y_rectangle = vec2.get_norm2()
+        theta = angle_between_vectors(Vector2d([1,0], [0,0]), vec1)
+        return Geometry(center= Pose(x=self.center[0],
+                                    y = self.center[1],  
+                                    z= 0, 
+                                    o_x = 0, 
+                                    o_y = 0, 
+                                    o_z = 0,
+                                    theta = theta),
+                                    box = RectangularPrism(dims_mm=Vector3(x = x_rectangle,
+                                                                   y = y_rectangle,
+                                                                   z = 10)))
+        
+        
+    def plot(self):
+        x = [edge[0] for edge in self.corners]
+        y = [edge[1] for edge in self.corners]
+
+        x.append(x[0])
+        y.append(y[0])
+        plt.plot(x, y, marker='x')
+        plt.grid(True)
+
+
+def get_minimum_bounding_box(hull_points_2d:np.array)->BoundingBox2D:
+    edges = []
+    n_edges = len(hull_points_2d)-1
+    for i in range(n_edges):
+        edges.append(Vector2d(hull_points_2d[i+1], hull_points_2d[i]))
+        
+    edges_angles = []
+    for i in range(n_edges):
+        angle = np.arctan2( edges[i].coordinates[1], edges[i].coordinates[0])
+        edges_angles.append(abs(angle % (np.pi/2)))
+
+    
+    min_area = math.inf
+    for i in range(n_edges):
+        theta = edges_angles[i]
+        R = np.array([[math.cos(theta), -math.sin(theta)], 
+              [math.sin(theta), math.cos(theta)]])
+        
+        
+        rot_points = np.dot(R, np.transpose(hull_points_2d))
+         # Find min/max x,y points
+        min_x = np.min(rot_points[0], axis=0)
+        max_x = np.max(rot_points[0], axis=0)
+        min_y = np.min(rot_points[1], axis=0)
+        max_y = np.max(rot_points[1], axis=0)
 
         # Calculate height/width/area of this bounding rectangle
         width = max_x - min_x
@@ -128,56 +142,13 @@ def get_minimum_bounding_box(hull_points_2d):
 
             # Calculate corner points and restore to original coordinate system
             corner_points = []
+            
+            #this garanties clock-wise or anti-clockwise order
             corner_points.append(np.dot( [ max_x, min_y ], R ))
             corner_points.append(np.dot( [ min_x, min_y ], R ))
             corner_points.append(np.dot( [ min_x, max_y ], R ))
             corner_points.append(np.dot( [ max_x, max_y ], R ))
+
+            bb = BoundingBox2D(corner_points, area = area, center = center_point)
             
-            bb = BoundingBox(corner_points, area = area)
-    
-    print(f"Bounding box are is {bb.area}")
     return bb
-    
-    
-
-
-class BoundingBox:
-    def __init__(self, edges: list, min_x=None, max_x = None, min_y = None, max_y = None, area=None):
-        self.edges = edges
-        self.area = area
-        
-    
-    def get_area(self):
-        if self.area is None:
-            self.area = (self.max_x-self.min_x)*(self.max_y-self.min_y)
-        return self.area
-    
-    
-    def plot(self):
-        x = [edge[0] for edge in self.edges]
-        y = [edge[1] for edge in self.edges]
-
-        # Close the bounding box by adding the first point at the end
-        x.append(x[0])
-        y.append(y[0])
-
-        # Create a figure and axis
-
-        # Plot the bounding box
-        plt.plot(x, y, marker='x')
-
-        # Add labels and title
-
-        # Show the plot
-        plt.grid(True)
-        # plt.gca().set_aspect('equal', adjustable='box')
-        # plt.show()
-# plt.show()
-
-
-
-
-
-
-
-    
