@@ -1,10 +1,11 @@
 
-
+from typing import List
 from rotating_caliper import BoundingBox2D
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-from viam.proto.common import GeometriesInFrame, Geometry
+from viam.proto.common import GeometriesInFrame, Geometry, PointCloudObject
+
 
 def plot_point_cloud(X, Y):
     # Create a scatter plot of the points
@@ -89,3 +90,11 @@ def plot_geometry(geo:Geometry):
     poly3 = BoundingBox2D(li3)
     poly3.plot()
     
+    
+def geometries_to_pointcloud_objects(geometries: List[Geometry], ref_frame:str) -> List[PointCloudObject]:
+    res =[]
+    for geo in geometries:
+        geometry_in_frame = GeometriesInFrame(reference_frame=ref_frame, geometries=[geo])
+        pcd_object = PointCloudObject(point_cloud=b'0', geometries=geometry_in_frame)
+        res.append(pcd_object)
+    return res
