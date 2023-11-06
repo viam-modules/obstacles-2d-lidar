@@ -19,14 +19,10 @@ async def main():
 
     print('Resources:')
     print(robot.resource_names)
-    
-    # Note that the Camera supplied is a placeholder. Please change this to a valid Camera.
-    # detector-module
+
     detector_module = VisionClient.from_robot(robot, "detector-module")
     detector_module_return_value = await detector_module.get_object_point_clouds(camera_name="cam")
     print(f"detector-module get_classifications_from_camera return value: {detector_module_return_value}")
-
-    # Don't forget to close the robot when you're done!
     await robot.close()
 
 if __name__ == '__main__':

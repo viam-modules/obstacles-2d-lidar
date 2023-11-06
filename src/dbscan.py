@@ -2,6 +2,7 @@ import numpy as np
 
 from sklearn.cluster import DBSCAN
 import matplotlib.pyplot as plt
+from pointcloud.point_cloud import PlanarPointCloud
 
 
 
@@ -51,47 +52,60 @@ def plot_clusters(db: DBSCAN, X:np.ndarray):
             markeredgecolor="k",
             markersize=1,
         )
-
-    # plt.title(f"Estimated number of clusters: {n_clusters_}")
     plt.axis("equal")
     plt.show()
     
-class Point:
-	def __init__(self, x = None, y = None):
-		self.x = x
-		self.y = y
+# class Point:
+# 	def __init__(self, x = None, y = None):
+# 		self.x = x
+# 		self.y = y
 
-class Cluster:
-    def __init__(self, points:list[Point] = None, label:int=None):
-        self.points = points
-        self.label = label
+# class Cluster:
+#     def __init__(self, points:list[Point] = None, label:int=None):
+#         self.points = points
+#         self.label = label
     
 
   
-def build_clusters(db: DBSCAN, X) -> list[Cluster]:
-    """ 
-        Function that returns a list of labelled clusters from a DBSCAN 
-        object and planar pointcloud
-    Args:
-        db (DBSCAN): dbscan already fitted
-        X (np.ndarray): Pointcloud. If there are n points in the planar pointcloud X 
-        should be of size (n,2)
-    """
-    res = []
+# def build_clusters(db: DBSCAN, X) -> (list[Cluster], list[np.array]):
+#     """ 
+#         Function that returns a list of labelled clusters from a DBSCAN 
+#         object and planar pointcloud
+#     Args:
+#         db (DBSCAN): dbscan already fitted
+#         X (np.ndarray): Pointcloud. If there are n points in the planar pointcloud X 
+#         should be of size (n,2)
+#     """
+#     clusters, masks = [], []
+#     labels = db.labels_
+#     # print(labels)
+#     unique_labels = set(labels)
+#     core_samples_mask = np.zeros_like(labels, dtype=bool)
+#     core_samples_mask[db.core_sample_indices_] = True
+    
+    
+#     for l in unique_labels:
+#         class_member_mask = (labels == l)
+#         print(f'Class member mask {class_member_mask & core_samples_mask}\n')
+#         points = X[class_member_mask & core_samples_mask]
+#         masks.append(class_member_mask & core_samples_mask)
+#         clusters.append(Cluster(points, l))
+        
+#     return clusters, masks
+        
+
+
+def build_ppc_from_dbscan(db: DBSCAN, points:np.array, normalized:bool=False, scale:float=None) -> list[PlanarPointCloud]:
+    ppcs = []
     labels = db.labels_
-    # print(labels)
     unique_labels = set(labels)
     core_samples_mask = np.zeros_like(labels, dtype=bool)
     core_samples_mask[db.core_sample_indices_] = True
     
-    
     for l in unique_labels:
-        class_member_mask = labels == l
-        points = X[class_member_mask & core_samples_mask]
-        # print(f"Points type is {type(points)}")
-        # print(f"points shape is {points.shape}")
-        res.append(Cluster(points, l))
+        class_member_mask = (labels == l)
+        sub_points = points[class_member_mask & core_samples_mask]
+        ppcs.append(PlanarPointCloud(sub_points, normalized, scale))
         
-    return res
-        
+    return ppcs
         

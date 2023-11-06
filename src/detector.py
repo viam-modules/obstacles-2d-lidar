@@ -1,6 +1,3 @@
-import asyncio
-
-
 from sklearn.cluster import DBSCAN
 from typing import List
 from viam.robot.client import RobotClient
@@ -11,77 +8,105 @@ from viam.gen.common.v1.common_pb2 import GeoObstacle
 from viam.gen.common.v1.common_pb2 import Geometry
 from viam.proto.common import GeometriesInFrame, Geometry, RectangularPrism, PoseInFrame, Pose
 import numpy as np
-import open3d as o3d
-from PIL import Image
-import os
 import utils
 import ransac
 import dbscan
 import graham_scan
 import rotating_caliper
-import pointcloud.point_cloud as point_cloud
-import matplotlib.pyplot as plt
 import dbscan
-from dbscan import Point, Cluster
 from pointcloud.point_cloud import PlanarPointCloud
 from viam.logging import getLogger
 
 LOGGER = getLogger(__name__)
 
 class Detector():
+    '''
+    normalize means that the ML will be done on normalized inputs'''
     def __init__(self,
-                 lidar: Camera=None, 
+                 lidar: Camera=None,
+                 normalize:float = True,  
                  dbscan_eps:float=0.05,
                  dbscan_min_samples:int=2,
                  min_points_cluster:int=2,
-                 save_results:bool= True) -> None:
+                 min_bbox_area:float=0.15,
+                 save_results:bool= False) -> None:
         
+        
+        self.normalize = normalize
         self.dbscan = DBSCAN(eps=dbscan_eps, min_samples=dbscan_min_samples)
         self.min_points_cluster = min_points_cluster
+        self.min_bbox_area = min_bbox_area
         self.save_results = save_results
+
     
-    def get_obstacles_from_planar_pcd(self, ppc:PlanarPointCloud, normalized = True)-> List[Geometry]:
+    
+    # def get_obstacles_from_planar_pcd2(self, ppc:PlanarPointCloud, normalize = True)-> List[(PlanarPointCloud, Geometry)]:
+    def get_obstacles_from_planar_pcd(self, input:PlanarPointCloud, normalize = True):
+        """
+        Returns a list of (PlanarPointCloud, Geometry)
+
+        Args:
+            ppc (PlanarPointCloud): input from planar lidar
+            normalize (bool, optional): Whether DBSCAN and RANSAC should use the normalized coordinates.
+
+        Returns:
+            List[PlanarPointCloud, Geometry]:
+        """        
         
         res = []
-        if normalized:
-            if not hasattr(ppc, "X_norm"):
-                ppc.normalize_point_cloud()
-            X, Y  = ppc.X_norm,ppc.Y_norm
-        else:
-            X, Y = ppc.X, ppc.Y    
-        
-        self.fit_dbscan(X,Y)
-        clusters = self.get_clusters_from_dbscan()
+        self.fit_dbscan(input)
+        clusters = self.build_ppcs_from_dbscan(input)
         for cluster in clusters:
-            if cluster.points.shape[0]>self.min_points_cluster:
-                h = graham_scan.ConvexHull(cluster.points.tolist())
-                # h.plot()
-                #Compute and plot 
-                min_bb = rotating_caliper.get_minimum_bounding_box(np.array(h.points))
-                if min_bb.area >0.15:
-                    ##refine clustering with ransac
-                    x = cluster.points[:, 0].reshape(-1,1)
-                    y = cluster.points[:, 1].reshape(-1,1)
+            if cluster.points.shape[0] < self.min_points_cluster:
+                continue
+            else:
+                g = graham_scan.GrahamScan(cluster) 
+                if self.save_results:
+                    g.plot()
+                
+                min_bb = rotating_caliper.get_minimum_bounding_box(np.array(g.convex_hull))
+                
+                #if the bounding box found is too big, refine it with RANSAC 2d linear model
+                if min_bb.area >self.min_bbox_area:
+                    _, inlier_mask, outlier_mask = ransac.get_one_wall(cluster.X_norm, cluster.Y_norm)
+                    #TODO: add check here to like num_inliers < 0.9 num total, to check if it's valid 
+                    ppc_1 = cluster.get_ppc_from_mask(inlier_mask)
+                    ppc_2 = cluster.get_ppc_from_mask(outlier_mask)
                     
-                    ransac_regressor, inlier_mask, outlier_mask = ransac.get_one_wall(x, y)
-                    
-                    clusters.append(dbscan.Cluster(points=np.concatenate((x[inlier_mask], y[inlier_mask]), axis=1)))
-                    clusters.append(dbscan.Cluster(points = np.concatenate((x[outlier_mask], y[outlier_mask]), axis=1)))
+                    clusters.append(ppc_1)
+                    clusters.append(ppc_2)
 
                 else:
                     geo =min_bb.get_geometry()
-                    res.append(geo)
-                    # utils.plot_geometry(geo)
+                    res.append((cluster, geo))
+                    if self.save_results:
+                        utils.plot_geometry(geo)
+        if self.save_results:
+            dbscan.plot_clusters(self.dbscan, input.points_norm)       
         return res
+            
     
-    def fit_dbscan(self, X, Y):
-        self.combined_array = np.concatenate((X, Y), axis=1)
-        self.dbscan.fit(self.combined_array)
+    
+    
+    def fit_dbscan(self, ppc:PlanarPointCloud):
+        if self.normalize:
+            self.dbscan.fit(ppc.points_norm)
+        else:
+            self.dbscan.fit(ppc.points)
+    
+    
+    def build_ppcs_from_dbscan(self, ppc:PlanarPointCloud) -> list[PlanarPointCloud]:
+        ppcs = []
         labels = self.dbscan.labels_
-
-        # Number of clusters in labels, ignoring noise if present.
-        n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
-        n_noise_ = list(labels).count(-1)
+        unique_labels = set(labels)
+        core_samples_mask = np.zeros_like(labels, dtype=bool)
+        core_samples_mask[self.dbscan.core_sample_indices_] = True
         
-    def get_clusters_from_dbscan(self)-> list[Cluster]:
-        return dbscan.build_clusters(self.dbscan, self.combined_array) 
+        for l in unique_labels:
+            class_member_mask = (labels == l)
+            mask = class_member_mask & core_samples_mask
+            if mask.sum() >self.min_points_cluster:
+                cluster = ppc.get_ppc_from_mask(mask)
+                ppcs.append(cluster)
+        return ppcs
+        
