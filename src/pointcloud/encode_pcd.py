@@ -26,7 +26,7 @@ class Encoder():
         return metadata_to_pcd_header(metadata)
     
     def encode_new(self, pc:PointCloud):
-        """ 
+        """
         Encodes pointclouds that
         don't share the same metadata as the one used to build the encoder
 
