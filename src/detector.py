@@ -9,6 +9,7 @@ import ransac
 import dbscan
 import graham_scan
 import rotating_caliper
+from sklearn import linear_model
 import dbscan
 from pointcloud.point_cloud import PlanarPointCloud
 from viam.logging import getLogger
@@ -25,6 +26,9 @@ class Detector():
                  dbscan_min_samples:int=2,
                  min_points_cluster:int=2,
                  min_bbox_area:float=0.15,
+                 ransac_min_samples:int=2, 
+                 ransac_residual_threshold:float=.2, 
+                 ransac_stop_probability:float=.99,
                  save_results:bool= False) -> None:
         
         
@@ -33,7 +37,10 @@ class Detector():
         self.min_points_cluster = min_points_cluster
         self.min_bbox_area = min_bbox_area
         self.save_results = save_results
-
+        self.ransac= ransac.RansacRegressor(min_samples=ransac_min_samples, 
+                                            residual_threshold=ransac_residual_threshold, 
+                                            stop_probability=ransac_stop_probability)
+    
     def get_obstacles_from_planar_pcd(self, input:PlanarPointCloud, normalize = True):
         """
         Returns a list of (PlanarPointCloud, Geometry)
@@ -61,10 +68,12 @@ class Detector():
                 
                 #if the bounding box found is too big, refine it with RANSAC 2d linear model
                 if min_bb.area >self.min_bbox_area:
-                    _, inlier_mask, outlier_mask = ransac.get_one_wall(cluster.X_norm, cluster.Y_norm)
+                    self.ransac.fit(cluster.X_norm, cluster.Y_norm)
+                    _, inlier_mask, outlier_mask = self.ransac.get_one_wall()
                     
                     #making sure that we don't refine the same cluster again and again
-                    if  (inlier_mask.sum() != cluster.points.shape[0]) or (inlier_mask.sum() != 0):
+                    n_inliers = inlier_mask.sum()
+                    if  (n_inliers != cluster.points.shape[0]) or (n_inliers >3):
                         ppc_1 = cluster.get_ppc_from_mask(inlier_mask)
                         ppc_2 = cluster.get_ppc_from_mask(outlier_mask)
                         
