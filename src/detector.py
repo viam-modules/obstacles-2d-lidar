@@ -3,10 +3,6 @@ from typing import List
 from viam.robot.client import RobotClient
 from viam.rpc.dial import Credentials, DialOptions
 from viam.components.camera import Camera
-from viam.services.vision import Detection
-from viam.gen.common.v1.common_pb2 import GeoObstacle
-from viam.gen.common.v1.common_pb2 import Geometry
-from viam.proto.common import GeometriesInFrame, Geometry, RectangularPrism, PoseInFrame, Pose
 import numpy as np
 import utils
 import ransac
@@ -21,9 +17,9 @@ LOGGER = getLogger(__name__)
 
 class Detector():
     '''
-    normalize means that the ML will be done on normalized inputs'''
+    normalize means that the ML will be done on normalized inputs
+    '''
     def __init__(self,
-                 lidar: Camera=None,
                  normalize:float = True,  
                  dbscan_eps:float=0.05,
                  dbscan_min_samples:int=2,
@@ -38,9 +34,6 @@ class Detector():
         self.min_bbox_area = min_bbox_area
         self.save_results = save_results
 
-    
-    
-    # def get_obstacles_from_planar_pcd2(self, ppc:PlanarPointCloud, normalize = True)-> List[(PlanarPointCloud, Geometry)]:
     def get_obstacles_from_planar_pcd(self, input:PlanarPointCloud, normalize = True):
         """
         Returns a list of (PlanarPointCloud, Geometry)
@@ -69,12 +62,20 @@ class Detector():
                 #if the bounding box found is too big, refine it with RANSAC 2d linear model
                 if min_bb.area >self.min_bbox_area:
                     _, inlier_mask, outlier_mask = ransac.get_one_wall(cluster.X_norm, cluster.Y_norm)
-                    #TODO: add check here to like num_inliers < 0.9 num total, to check if it's valid 
-                    ppc_1 = cluster.get_ppc_from_mask(inlier_mask)
-                    ppc_2 = cluster.get_ppc_from_mask(outlier_mask)
                     
-                    clusters.append(ppc_1)
-                    clusters.append(ppc_2)
+                    #making sure that we don't refine the same cluster again and again
+                    if  (inlier_mask.sum() != cluster.points.shape[0]) or (inlier_mask.sum() != 0):
+                        ppc_1 = cluster.get_ppc_from_mask(inlier_mask)
+                        ppc_2 = cluster.get_ppc_from_mask(outlier_mask)
+                        
+                        clusters.append(ppc_1)
+                        clusters.append(ppc_2)
+                    
+                    else:
+                        geo =min_bb.get_geometry()
+                        res.append((cluster, geo))
+                        if self.save_results:
+                            utils.plot_geometry(geo)
 
                 else:
                     geo =min_bb.get_geometry()

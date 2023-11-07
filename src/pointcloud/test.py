@@ -19,8 +19,9 @@ def test_decode_pcd(pcd_bytes):
     return pc
 
 pc = test_decode_pcd(pcd_bytes)
-
-pcd_bytes2 = encode_pointcloud_to_pcd_bytes(pc)
+encoder = Encoder(pc.metadata)
+pcd_bytes2 = encoder.encode(pc)
+# pcd_bytes2 = encode_pointcloud_to_pcd_bytes(pc)
 
 bunny_path =  './src/data/bunny_ascii.pcd'
 encoded_pcd_output_path  = './src/data/output_test.pcd'
