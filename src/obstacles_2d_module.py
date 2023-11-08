@@ -90,10 +90,8 @@ class ObstacleDetectorModule(Vision, Reconfigurable):
         
         
         
-        # pcd_bytes = await self.camera.get_point_cloud()
-        with open('./src/data/pointcloud_data.pcd', 'rb') as file:
-            pcd_bytes = file.read()
-        
+        pcd_bytes, _ = await self.camera.get_point_cloud()
+    
         pc = decode_pcd_bytes(pcd_bytes)
         ppc = pc.get_planar_from_3D()
         ppc.normalize_point_cloud()
@@ -110,7 +108,6 @@ class ObstacleDetectorModule(Vision, Reconfigurable):
             geometry_in_frame = GeometriesInFrame(reference_frame=self.camera_name, geometries=[geo])
             res.append(PointCloudObject(point_cloud=cluster_pcd_bytes,
                                         geometries=geometry_in_frame))
-        # return GetObjectPointCloudsResponse(mime_type="pointcloud/pcd", objects=res)
         return res
         
     

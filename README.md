@@ -3,8 +3,7 @@
 
 ## Getting started
 
-RPLIDar
-
+TODO: Add link to Rplidar module..
 This module implements the method `GetObjectPointClouds()` of the [vision service API](https://docs.viam.com/services/vision/#api).
 
 ### Installation with `pip install`
@@ -16,11 +15,48 @@ pip install -r requirements.txt
 
 ## Config
 ### Example config 
- /!\ Not ready yet /!\
+```json
+{
+  "services": [
+    {
+      "namespace": "rdk",
+      "model": "viam:vision:obstacles-2d-detector",
+      "attributes": {
+        "min_points_cluster": 4,
+        "min_bbox_area": 0.2,
+        "camera_name": "rplidar"
+      },
+      "name": "detector-module",
+      "type": "vision"
+    }
+  ],
+  "components": [
+    {
+      "namespace": "rdk",
+      "type": "camera",
+      "model": "viam:lidar:rplidar",
+      "attributes": {
+        "device_path": "/dev/tty.usbserial-0001"
+      },
+      "name": "rplidar",
+      "depends_on": []
+    }
+  ],
+  "modules": [
+    {
+      "name": "mydetector",
+      "type": "local",
+      "executable_path": "/path/to/your/run.sh"
+    },
+    {
+      "executable_path": "/opt/homebrew/bin/rplidar-module",
+      "name": "rplidar_module"
+    }
+  ]
+}
+```
 
 ### Attributes description
-
- /!\ Not ready yet - need to add ransac parameters /!\
 
 The following attributes are available to configure your 2d obstacles detection module:
 
@@ -37,7 +73,7 @@ The following attributes are available to configure your 2d obstacles detection 
 
 
 ## Deeper dive
- /!\ Not ready yet /!\
+ /!\ In progress... /!\
 
 The module works as follow:
   1. Get pcd

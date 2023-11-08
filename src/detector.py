@@ -1,20 +1,17 @@
 from sklearn.cluster import DBSCAN
-from typing import List
-from viam.robot.client import RobotClient
-from viam.rpc.dial import Credentials, DialOptions
-from viam.components.camera import Camera
 import numpy as np
 import utils
 import ransac
 import dbscan
 import graham_scan
 import rotating_caliper
-from sklearn import linear_model
 import dbscan
 from pointcloud.point_cloud import PlanarPointCloud
 from viam.logging import getLogger
+import matplotlib.pyplot as plt
 
 LOGGER = getLogger(__name__)
+
 
 class Detector():
     '''
@@ -61,10 +58,7 @@ class Detector():
                 continue
             else:
                 g = graham_scan.GrahamScan(cluster) 
-                if self.save_results:
-                    g.plot()
-                
-                min_bb = rotating_caliper.get_minimum_bounding_box(np.array(g.convex_hull))
+                min_bb = rotating_caliper.get_minimum_bounding_box(g)
                 
                 #if the bounding box found is too big, refine it with RANSAC 2d linear model
                 if min_bb.area >self.min_bbox_area:
@@ -72,8 +66,9 @@ class Detector():
                     _, inlier_mask, outlier_mask = self.ransac.get_one_wall()
                     
                     #making sure that we don't refine the same cluster again and again
+                    #and that we have a proper wall
                     n_inliers = inlier_mask.sum()
-                    if  (n_inliers != cluster.points.shape[0]) or (n_inliers >3):
+                    if  (n_inliers != cluster.points.shape[0]) and (n_inliers >3):
                         ppc_1 = cluster.get_ppc_from_mask(inlier_mask)
                         ppc_2 = cluster.get_ppc_from_mask(outlier_mask)
                         
@@ -83,21 +78,21 @@ class Detector():
                     else:
                         geo =min_bb.get_geometry()
                         res.append((cluster, geo))
-                        if self.save_results:
-                            utils.plot_geometry(geo)
 
                 else:
                     geo =min_bb.get_geometry()
                     res.append((cluster, geo))
-                    if self.save_results:
-                        utils.plot_geometry(geo)
+        
         if self.save_results:
-            dbscan.plot_clusters(self.dbscan, input.points_norm)       
+            utils.set_pyplot_style()
+            dbscan.plot_clusters(self.dbscan, input.points_norm)
+            for _, geo in res:
+                utils.plot_geometry(geo)
+            plt.savefig("./results.png", format='png', dpi=300)       
+        
         return res
             
-    
-    
-    
+
     def fit_dbscan(self, ppc:PlanarPointCloud):
         if self.normalize:
             self.dbscan.fit(ppc.points_norm)

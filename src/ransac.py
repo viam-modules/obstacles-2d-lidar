@@ -1,13 +1,5 @@
 import numpy as np
-from matplotlib import pyplot as plt
-
 from sklearn import linear_model
-
-# # Robustly fit linear model with RANSAC algorithm
-# ransac = linear_model.RANSACRegressor()
-# ransac.fit(X, y)
-# inlier_mask = ransac.inlier_mask_
-# outlier_mask = np.logical_not(inlier_mask)
 
 class RansacRegressor():
     def __init__(self,

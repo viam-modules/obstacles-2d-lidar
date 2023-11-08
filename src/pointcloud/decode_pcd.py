@@ -1,4 +1,4 @@
-from .point_cloud import PointCloud, PlanarPointCloud
+from .point_cloud import PointCloud
 import struct
 
 

@@ -4,9 +4,7 @@ from rotating_caliper import BoundingBox2D
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-from pointcloud.point_cloud import PlanarPointCloud
 from viam.proto.common import GeometriesInFrame, Geometry, PointCloudObject
-import pointcloud
 
 
 def plot_point_cloud(X, Y):
@@ -100,3 +98,17 @@ def geometries_to_pointcloud_objects(geometries: List[Geometry], ref_frame:str) 
         pcd_object = PointCloudObject(point_cloud=b'0', geometries=geometry_in_frame)
         res.append(pcd_object)
     return res
+
+
+def set_pyplot_style():
+    plt.style.use("dark_background")
+    plt.grid(True, color='gainsboro', linestyle='-', linewidth=.1)
+    # 
+    plt.xlim(-0.5, 0.6)
+    plt.ylim((-.5, 0.6))
+    plt.axis("square")
+    # plt.axis('equal')
+    plt.xticks(fontsize=4)
+    plt.yticks(fontsize=4)
+    
+    

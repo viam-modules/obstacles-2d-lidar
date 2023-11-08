@@ -1,8 +1,8 @@
 import numpy as np
 import math 
 import matplotlib.pyplot as plt
-from viam.proto.common import GeometriesInFrame, Geometry, RectangularPrism, PoseInFrame, Pose, Vector3
-
+from viam.proto.common import Geometry, RectangularPrism, Pose, Vector3
+from graham_scan import GrahamScan
 
 class Vector2d:
     def __init__(self, end, start, norm=None) -> None:
@@ -98,11 +98,12 @@ class BoundingBox2D:
 
         x.append(x[0])
         y.append(y[0])
-        plt.plot(x, y, marker='x')
-        plt.grid(True)
+
+        plt.plot(x, y, linewidth=.5 )
 
 
-def get_minimum_bounding_box(hull_points_2d:np.array)->BoundingBox2D:
+def get_minimum_bounding_box(g: GrahamScan)->BoundingBox2D:
+    hull_points_2d = np.array(g.convex_hull)
     edges = []
     n_edges = len(hull_points_2d)-1
     for i in range(n_edges):
@@ -112,7 +113,6 @@ def get_minimum_bounding_box(hull_points_2d:np.array)->BoundingBox2D:
     for i in range(n_edges):
         angle = np.arctan2( edges[i].coordinates[1], edges[i].coordinates[0])
         edges_angles.append(abs(angle % (np.pi/2)))
-
     
     min_area = math.inf
     for i in range(n_edges):
@@ -122,13 +122,12 @@ def get_minimum_bounding_box(hull_points_2d:np.array)->BoundingBox2D:
         
         
         rot_points = np.dot(R, np.transpose(hull_points_2d))
-         # Find min/max x,y points
+        
         min_x = np.min(rot_points[0], axis=0)
         max_x = np.max(rot_points[0], axis=0)
         min_y = np.min(rot_points[1], axis=0)
         max_y = np.max(rot_points[1], axis=0)
 
-        # Calculate height/width/area of this bounding rectangle
         width = max_x - min_x
         height = max_y - min_y
         area = width*height

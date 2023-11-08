@@ -40,10 +40,11 @@ class GrahamScan:
         y += y[:1]
 
         # Plot the polygon
-        plt.plot(x, y, marker='o', linestyle='dashed')
+        plt.style.use("dark_background")
+        plt.plot(x, y, marker=None, linestyle='dashed')
 
         # Add labels and title
-        plt.xlabel('X-axis')
-        plt.ylabel('Y-axis')
-        plt.title('Polygon Plot')
+        # plt.xlabel('X-axis')
+        # plt.ylabel('Y-axis')
+        # plt.title('Polygon Plot')
         # plt.show()
