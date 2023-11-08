@@ -2,7 +2,7 @@
 [Viam module](https://docs.viam.com/extend/modular-resources/) for 2D obstacles detection as a vision service. 
 
 <p align="center">
- <img src="https://github.com/Rob1in/obstacles-2d-lidar/blob/module/img/results.png" width=35%, height=35%>
+ <img src="https://github.com/Rob1in/obstacles-2d-lidar/blob/module/img/results.png" width=100%, height=100%>
  </p>
 
 
