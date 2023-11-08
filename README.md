@@ -1,6 +1,12 @@
 # Obstacles detection from planar lidar
 [Viam module](https://docs.viam.com/extend/modular-resources/) for 2D obstacles detection as a vision service. 
 
+<p align="center">
+ <img src="https://github.com/Rob1in/obstacles-2d-lidar/blob/module/img/results.png" width=35%, height=35%>
+ </p>
+
+
+
 ## Getting started
 
 TODO: Add link to Rplidar module..
