@@ -17,7 +17,7 @@ jobs:
       if: github.event_name == 'release'
       with:
         module-path: module.tar.gz
-        platform: ${{ matrix.platform }
+        platform: ${{ matrix.platform }}
         version: ${{ github.event_name == 'release' && github.ref_name || format('0.0.0-{0}.{1}', github.ref_name, github.run_number) }} # <-- see 'Versioning' section below for explanation
         key-id: ${{ secrets.viam_key_id }}
         key-value: ${{ secrets.viam_key_value }}
