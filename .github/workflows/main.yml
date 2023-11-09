@@ -1,0 +1,23 @@
+on:
+  push:
+  release:
+    types: [released]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: 
+        platform: [linux/arm64, linux/amd64, darwin/arm64, darwin/amd64]
+    steps:
+    - uses: actions/checkout@v3
+    - name: build
+      run: make module.tar.gz
+    - uses: viamrobotics/upload-module@v1
+      if: github.event_name == 'release'
+      with:
+        module-path: module.tar.gz
+        platform: ${{ matrix.platform }
+        version: ${{ github.event_name == 'release' && github.ref_name || format('0.0.0-{0}.{1}', github.ref_name, github.run_number) }} # <-- see 'Versioning' section below for explanation
+        key-id: ${{ secrets.viam_key_id }}
+        key-value: ${{ secrets.viam_key_value }}
