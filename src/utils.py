@@ -1,6 +1,6 @@
 
 from typing import List
-from rotating_caliper import BoundingBox2D
+from .rotating_caliper import BoundingBox2D
 import numpy as np
 import matplotlib.pyplot as plt
 import math

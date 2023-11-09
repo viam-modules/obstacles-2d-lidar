@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from pointcloud.point_cloud import PlanarPointCloud
+from .pointcloud.point_cloud import PlanarPointCloud
 
 class GrahamScan:
     '''

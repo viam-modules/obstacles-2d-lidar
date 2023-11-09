@@ -1,12 +1,11 @@
 from sklearn.cluster import DBSCAN
 import numpy as np
-import utils
-import ransac
-import dbscan
-import graham_scan
-import rotating_caliper
-import dbscan
-from pointcloud.point_cloud import PlanarPointCloud
+from .utils import set_pyplot_style, plot_geometry
+from .ransac import RansacRegressor
+from .dbscan import plot_dbscan_clusters
+from .graham_scan import GrahamScan
+from .rotating_caliper import get_minimum_bounding_box
+from .pointcloud.point_cloud import PlanarPointCloud
 from viam.logging import getLogger
 import matplotlib.pyplot as plt
 
@@ -34,7 +33,7 @@ class Detector():
         self.min_points_cluster = min_points_cluster
         self.min_bbox_area = min_bbox_area
         self.save_results = save_results
-        self.ransac= ransac.RansacRegressor(min_samples=ransac_min_samples, 
+        self.ransac= RansacRegressor(min_samples=ransac_min_samples, 
                                             residual_threshold=ransac_residual_threshold, 
                                             stop_probability=ransac_stop_probability)
     
@@ -57,8 +56,8 @@ class Detector():
             if cluster.points.shape[0] < self.min_points_cluster:
                 continue
             else:
-                g = graham_scan.GrahamScan(cluster) 
-                min_bb = rotating_caliper.get_minimum_bounding_box(g)
+                g = GrahamScan(cluster) 
+                min_bb = get_minimum_bounding_box(g)
                 
                 #if the bounding box found is too big, refine it with RANSAC 2d linear model
                 if min_bb.area >self.min_bbox_area:
@@ -84,10 +83,10 @@ class Detector():
                     res.append((cluster, geo))
         
         if self.save_results:
-            utils.set_pyplot_style()
-            dbscan.plot_clusters(self.dbscan, input.points_norm)
+            set_pyplot_style()
+            plot_dbscan_clusters(self.dbscan, input.points_norm)
             for _, geo in res:
-                utils.plot_geometry(geo)
+                plot_geometry(geo)
             plt.savefig("./results.png", format='png', dpi=300)       
         
         return res

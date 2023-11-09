@@ -1,8 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import struct
-# from .encode_pcd import *
-
 
 class PlanarPointCloud():
     '''

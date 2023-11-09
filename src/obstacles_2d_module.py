@@ -12,10 +12,10 @@ from viam.proto.common import GeometriesInFrame
 from viam.resource.base import ResourceBase
 from viam.utils import ValueTypes
 from viam.logging import getLogger
-from detector import Detector
-import pointcloud.point_cloud as pointcloud
-from pointcloud.decode_pcd import decode_pcd_bytes
-from pointcloud.encode_pcd import Encoder
+from .detector import Detector
+from .pointcloud.point_cloud import get_pc_from_pcc
+from .pointcloud.decode_pcd import decode_pcd_bytes
+from .pointcloud.encode_pcd import Encoder
 
 LOGGER = getLogger(__name__)
 
@@ -102,7 +102,7 @@ class ObstacleDetectorModule(Vision, Reconfigurable):
         res = []
         for ppc, geo in obstacles:
             #do PCD encoding
-            pc_1 = pointcloud.get_pc_from_pcc(ppc = ppc, z = 0, metadata=pc.metadata)
+            pc_1 = get_pc_from_pcc(ppc = ppc, z = 0, metadata=pc.metadata)
             cluster_pcd_bytes = encoder.encode_new(pc_1)
             #get geo_in_frames
             geometry_in_frame = GeometriesInFrame(reference_frame=self.camera_name, geometries=[geo])

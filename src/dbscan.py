@@ -2,7 +2,7 @@ import numpy as np
 
 from sklearn.cluster import DBSCAN
 import matplotlib.pyplot as plt
-from pointcloud.point_cloud import PlanarPointCloud
+from .pointcloud.point_cloud import PlanarPointCloud
 
 def get_dbscan(X, Y):
     combined_array = np.concatenate((X, Y), axis=1)
@@ -14,7 +14,7 @@ def get_dbscan(X, Y):
     n_noise_ = list(labels).count(-1)
     return db, n_clusters_, n_noise_
 
-def plot_clusters(db: DBSCAN, X:np.ndarray):
+def plot_dbscan_clusters(db: DBSCAN, X:np.ndarray):
     labels = db.labels_
     unique_labels = set(labels)
     core_samples_mask = np.zeros_like(labels, dtype=bool)

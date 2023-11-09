@@ -3,7 +3,7 @@ import asyncio
 from viam.services.vision import Vision
 from viam.module.module import Module
 from viam.resource.registry import Registry, ResourceCreatorRegistration
-from obstacles_2d_module import ObstacleDetectorModule
+from .obstacles_2d_module import ObstacleDetectorModule
 
 
 async def main():

@@ -2,7 +2,7 @@ import numpy as np
 import math 
 import matplotlib.pyplot as plt
 from viam.proto.common import Geometry, RectangularPrism, Pose, Vector3
-from graham_scan import GrahamScan
+from .graham_scan import GrahamScan
 
 class Vector2d:
     def __init__(self, end, start, norm=None) -> None:
