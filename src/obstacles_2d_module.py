@@ -14,8 +14,8 @@ from viam.utils import ValueTypes
 from viam.logging import getLogger
 from detector import Detector
 import pointcloud.point_cloud as pointcloud
-from pointcloud.decode_pcd import *
-from pointcloud.encode_pcd import *
+from pointcloud.decode_pcd import decode_pcd_bytes
+from pointcloud.encode_pcd import Encoder
 
 LOGGER = getLogger(__name__)
 
@@ -39,7 +39,7 @@ class ObstacleDetectorModule(Vision, Reconfigurable):
         camera_name = config.attributes.fields["camera_name"].string_value
         if camera_name == "":
             raise Exception(
-                "A camera name is required for 2d_obstacles_vision service.")
+                "A camera name is required for obstacles_2d_lidar vision service module.")
         return [camera_name]
 
     def reconfigure(self,

@@ -10,7 +10,6 @@ class PlanarPointCloud():
     self.Y array of shape (n_points, 1)
     '''
     def __init__(self, points:list=[], normalize:bool = False) -> None:
-        # self.points = np.array(points)
         """_summary_
 
         Args:
@@ -46,20 +45,15 @@ class PlanarPointCloud():
     @property 
     def X_norm(self):
         if self.scale is None:
-            raise AttributeError("Planar poincloud must be normalized first")
-        return self.X/self.scale
+            self.normalize_point_cloud() 
+        return self.points_norm[:,0].reshape(-1,1)
     
     @property 
     def Y_norm(self):
         if self.scale is None:
-            raise AttributeError("Planar poincloud must be normalized first")
-        return self.Y/self.scale 
+            self.normalize_point_cloud() 
+        return self.points_norm[:,1].reshape(-1,1)
     
-    # @property
-    # def points_norm(self):
-    #     if self.scale is None:
-    #         raise AttributeError("Planar poincloud must be normalized first")
-    #     return self.points_norm
 
     def normalize_point_cloud(self, centered = False):
         self.scale = max(abs(self.X.max()), abs(self.X.min()), abs(self.Y.max()), abs(self.Y.min()))

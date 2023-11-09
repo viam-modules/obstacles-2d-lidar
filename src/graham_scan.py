@@ -1,6 +1,4 @@
-import random
 import matplotlib.pyplot as plt
-import numpy as np
 from pointcloud.point_cloud import PlanarPointCloud
 
 class GrahamScan:
@@ -34,17 +32,7 @@ class GrahamScan:
     def plot(self):
         points = self.convex_hull
         x, y = zip(*points)
-
-        # Close the polygon by adding the first point at the end
         x += x[:1]
         y += y[:1]
-
-        # Plot the polygon
-        plt.style.use("dark_background")
         plt.plot(x, y, marker=None, linestyle='dashed')
-
-        # Add labels and title
-        # plt.xlabel('X-axis')
-        # plt.ylabel('Y-axis')
-        # plt.title('Polygon Plot')
-        # plt.show()
+  

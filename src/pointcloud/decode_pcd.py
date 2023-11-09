@@ -55,10 +55,11 @@ def decode_pcd_bytes(pcd_bytes) -> PointCloud:
         elif line.startswith('DATA'):
             metadata['DATA'] = line.split(' ')[1]
 
-    # Find the start of binary data, the following won't work if DATA ascii
+    if metadata['DATA'] != 'binary':
+        raise ValueError(f"DATA format is not supported. DATA should be binary but got: {metadata['DATA']}")
+    # find the start of binary data, the following won't work if DATA ascii
     data_start = header_lines.index(b'DATA binary') + 1
-
-    # Extract binary data
+    # extract binary data
     binary_data = b'\n'.join(header_lines[data_start:])
     num_floats = len(binary_data) // metadata['SIZE'][0]
     pcd_data = struct.unpack('f' * num_floats, binary_data)
