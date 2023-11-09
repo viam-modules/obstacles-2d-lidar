@@ -20,7 +20,7 @@ from pointcloud.encode_pcd import *
 LOGGER = getLogger(__name__)
 
 class ObstacleDetectorModule(Vision, Reconfigurable):
-    MODEL: ClassVar[Model] = Model(ModelFamily("viam", "vision"), "obstacles-2d-detector")
+    MODEL: ClassVar[Model] = Model(ModelFamily("viam", "vision"), "obstacles_2d_lidar")
      
     def __init__(self, name: str):
         super().__init__(name=name)

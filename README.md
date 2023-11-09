@@ -26,7 +26,7 @@ pip install -r requirements.txt
   "services": [
     {
       "namespace": "rdk",
-      "model": "viam:vision:obstacles-2d-detector",
+      "model": "viam:vision:obstacles_2d_lidar",
       "attributes": {
         "min_points_cluster": 4,
         "min_bbox_area": 0.2,
