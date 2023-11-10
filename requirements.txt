@@ -1,0 +1,5 @@
+numpy
+viam-sdk==0.6.1
+scikit-learn
+scipy
+matplotlib

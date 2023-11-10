@@ -1,0 +1,13 @@
+{
+  "name": "viam:obstacles_2d_lidar",
+  "visibility": "public",
+  "url": "https://github.com/viamrobotics/obstacles-2d-lidar",
+  "description": "This vision service uses planar lidar as input to detect obstacles. It implements the method get_object_point_poin_clouds() of the vision service API.",
+  "models": [
+    {
+      "api": "rdk:service:vision",
+      "model": "viam:vision:obstacles_2d_lidar"
+    }
+  ],
+  "entrypoint": "run.sh"
+}

@@ -1,0 +1,9 @@
+.DS_Store
+*.tar.gz
+.venv/
+src/__pycache__
+src/pointcloud/.DS_Store
+src/pointcloud/__pycache__
+src/data/outpu*
+.vscode
+venv
