@@ -14,7 +14,7 @@ jobs:
     - name: build
       run: make module.tar.gz
     - uses: viamrobotics/upload-module@v1
-      #if: github.event_name == 'release'
+      if: github.event_name == 'release'
       with:
         module-path: module.tar.gz
         platform: ${{ matrix.platform }}
