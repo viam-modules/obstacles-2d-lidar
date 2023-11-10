@@ -13,8 +13,9 @@ jobs:
     - uses: actions/checkout@v3
     - name: build
       run: make module.tar.gz
-      if: github.event_name == 'release'
-    - uses: viamrobotics/upload-module@v1 
+    - name: upload  
+      if: ${{ github.event_name == 'release' }}
+      uses: viamrobotics/upload-module@v1
       with:
         module-path: module.tar.gz
         platform: ${{ matrix.platform }}
