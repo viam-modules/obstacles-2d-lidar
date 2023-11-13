@@ -69,6 +69,7 @@ The following attributes are available to configure your 2d obstacles detection 
 | Name | Type | Inclusion | Default | Description |
 | ---- | ---- | --------- | --------| ------------ |
 | `camera_name` | string | **Required** | | Camera name (planar lidar) to be used as input for detecting the obstacles. |
+| `normal_vector` | string | Optional | `z` | Normal vector that defines the plan to project the 3D point cloud on. Accepted values are `x`, `y`, `z` and `auto`. If `auto` is selected, the algorithm will check if all the points belong to the same plan and project the points in this plane. `x`, `y` and `z` refers directly to PCD fields. (Choose default value for Rplidar A1).|
 | `dbscan_eps` | float | Optional | `0.05` | The maximum distance between two samples for one to be considered as in the neighborhood of the other. This is not a maximum bound on the distances of points within a cluster. This is the most important DBSCAN parameter to choose appropriately for your data set and distance function.|
 |`dbscan_min_samples`| int | Optional | `2` |The number of samples (or total weight) in a neighborhood for a point to be considered as a core point. This includes the point itself. If min_samples is set to a higher value, DBSCAN will find denser clusters, whereas if it is set to a lower value, the found clusters will be more sparse. |
 |`min_points_cluster`| int | Optional | `2` | Minimum number of points to define a cluster (obstacle)  |

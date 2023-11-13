@@ -115,17 +115,35 @@ class PointCloud():
             return PlanarPointCloud(self.points[:, 1:2])
         if axis_normal == 'x':
             return PlanarPointCloud(self.points[:, 0:])
-        
+        if axis_normal == 'detect':
+            projection_2d = self.detect_and_project_plane()
+            return  PlanarPointCloud(points=projection_2d)
         else:
             raise ValueError("Invalid normal axis. Please provide 'x', 'y' or 'z' or 2 as argument for normal axis.")
+    
+    
+    def detect_and_project_plane(self):
+        if len(self.points) < 3:
+            raise AssertionError("not enough points to define a plane")
         
+        vectors = self.points - self.points[0]
+        normal_vector = np.cross(vectors[1], vectors[2])
+        
+        parallel = all(np.dot(normal_vector, vec) == 0 for vec in vectors[3:])
+        if parallel:
+            return self.project(normal_vector)
+        else:
+            raise AssertionError("point cloud is not comprehended onto a plane")
+    
+    
+    def project(self, normal_vector:np.array):
+        
+        
+        normal_vector = normal_vector/np.linalg.norm(normal_vector) #normalize normal vector
+        projection = self.points - np.outer(np.dot(self.points, normal_vector), normal_vector) #project
+        projection_2d = projection[:, :2]
 
-    
-    
-    # def get_pcd_bytes(self, mask = None):
-    #     #TODO: create a new metadata dict and change width, height, size
-    #     return encode_pointcloud_to_pcd_bytes(self.metadata, self.points[mask])
-    
+        return projection_2d
 
 def get_pc_from_pcc(ppc: PlanarPointCloud, z:float=0, metadata:dict=None, scale_to:float=1):
     n_points = ppc.points.shape[0]
