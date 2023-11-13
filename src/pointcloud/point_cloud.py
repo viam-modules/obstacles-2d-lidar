@@ -115,7 +115,7 @@ class PointCloud():
             return PlanarPointCloud(self.points[:, 1:2])
         if axis_normal == 'x':
             return PlanarPointCloud(self.points[:, 0:])
-        if axis_normal == 'detect':
+        if axis_normal == 'auto':
             projection_2d = self.detect_and_project_plane()
             return  PlanarPointCloud(points=projection_2d)
         else:
@@ -127,9 +127,8 @@ class PointCloud():
             raise AssertionError("not enough points to define a plane")
         
         vectors = self.points - self.points[0]
-        normal_vector = np.cross(vectors[1], vectors[2])
-        
-        parallel = all(np.dot(normal_vector, vec) == 0 for vec in vectors[3:])
+        normal_vector = np.cross(vectors[1], vectors[2])                       # check if all points
+        parallel = all(np.dot(normal_vector, vec) == 0 for vec in vectors[3:]) # belong to the same plane
         if parallel:
             return self.project(normal_vector)
         else:
@@ -137,8 +136,6 @@ class PointCloud():
     
     
     def project(self, normal_vector:np.array):
-        
-        
         normal_vector = normal_vector/np.linalg.norm(normal_vector) #normalize normal vector
         projection = self.points - np.outer(np.dot(self.points, normal_vector), normal_vector) #project
         projection_2d = projection[:, :2]

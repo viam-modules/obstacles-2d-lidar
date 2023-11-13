@@ -69,7 +69,7 @@ class ObstacleDetectorModule(Vision, Reconfigurable):
         ransac_min_samples = get_attribute_from_config("ransac_min_samples", 2)
         ransac_residual_threshold = get_attribute_from_config('ransac_residual_threshold', 0.2)
         ransac_stop_probability = get_attribute_from_config("ransac_stop_probability", 0.99)
-        
+        prism_z_dim = get_attribute_from_config('obstacles_height_mm', 1.0)
         self.normal_vector = get_attribute_from_config("normal_vector", 'z')
 
         self.detector = Detector(normalize=True,
@@ -79,7 +79,8 @@ class ObstacleDetectorModule(Vision, Reconfigurable):
                                  min_bbox_area=min_bbox_area,
                                  ransac_min_samples=ransac_min_samples, 
                                  ransac_residual_threshold=ransac_residual_threshold, 
-                                 ransac_stop_probability=ransac_stop_probability)
+                                 ransac_stop_probability=ransac_stop_probability, 
+                                 prism_z_dim = prism_z_dim)
         
     async def get_object_point_clouds(self,
                                       camera_name: str,

@@ -25,6 +25,7 @@ class Detector():
                  ransac_min_samples:int=2, 
                  ransac_residual_threshold:float=.2, 
                  ransac_stop_probability:float=.99,
+                 prism_z_dim: float=1, 
                  save_results:bool= False) -> None:
         
         
@@ -36,7 +37,8 @@ class Detector():
         self.ransac= RansacRegressor(min_samples=ransac_min_samples, 
                                             residual_threshold=ransac_residual_threshold, 
                                             stop_probability=ransac_stop_probability)
-    
+        self.prism_z_dim = prism_z_dim
+        
     def get_obstacles_from_planar_pcd(self, input:PlanarPointCloud, normalize = True):
         """
         Returns a list of (PlanarPointCloud, Geometry)
@@ -75,11 +77,13 @@ class Detector():
                         clusters.append(ppc_2)
                     
                     else:
-                        geo =min_bb.get_geometry()
+                        geo =min_bb.get_scaled_geometry(scale_to= input.scale,
+                                                 prism_z_dim=self.prism_z_dim)
                         res.append((cluster, geo))
 
                 else:
-                    geo =min_bb.get_geometry()
+                    geo =min_bb.get_scaled_geometry(scale_to= input.scale,
+                                                 prism_z_dim=self.prism_z_dim)
                     res.append((cluster, geo))
         
         if self.save_results:
