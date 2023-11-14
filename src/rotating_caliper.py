@@ -74,7 +74,7 @@ class BoundingBox2D:
         return angle_between_vectors(Vector2d(self.corners[(corner-1)%4], self.corners[corner]), Vector2d(self.corners[(corner+1)%4], self.corners[corner]))
 
 
-    def get_geometry(self, scale_to:float=1, box_height:float=1) -> Geometry:
+    def get_scaled_geometry(self, scale_to:float=1, prism_z_dim:float=1) -> Geometry:
         vec1 = Vector2d(self.corners[1], self.corners[0])
         vec2= Vector2d(self.corners[3], self.corners[0])
         x_rectangle = vec1.get_norm2()
@@ -89,7 +89,7 @@ class BoundingBox2D:
                                     theta = theta),
                                     box = RectangularPrism(dims_mm=Vector3(x = x_rectangle*scale_to,
                                                                    y = y_rectangle*scale_to,
-                                                                   z = box_height)))
+                                                                   z = prism_z_dim)))
         
         
     def plot(self):
