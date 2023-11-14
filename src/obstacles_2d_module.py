@@ -49,11 +49,16 @@ class ObstacleDetectorModule(Vision, Reconfigurable):
         self.camera_name = config.attributes.fields["camera_name"].string_value
         self.camera = dependencies[Camera.get_resource_name(self.camera_name)]
         
-        def get_attribute_from_config(attribute_name:str,  default):
+        def get_attribute_from_config(attribute_name:str,  default, of_type=None):
             if attribute_name not in config.attributes.fields:
                 return default
 
-            type_default = type(default)
+            if default is None:
+                if of_type is None:
+                    raise Exception("If default value is None, of_type argument can't be empty")
+                type_default = of_type
+            else:    
+                type_default = type(default)
 
             if type_default == int:
                 return int(config.attributes.fields[attribute_name].number_value)
@@ -71,6 +76,7 @@ class ObstacleDetectorModule(Vision, Reconfigurable):
         ransac_stop_probability = get_attribute_from_config("ransac_stop_probability", 0.99)
         prism_z_dim = get_attribute_from_config('obstacles_height_mm', 1.0)
         self.normal_vector = get_attribute_from_config("normal_vector", 'z')
+        self.min_range_mm = get_attribute_from_config("min_range_mm", None, float)
 
         self.detector = Detector(normalize=True,
                                  dbscan_eps=dbscan_eps,
@@ -92,11 +98,9 @@ class ObstacleDetectorModule(Vision, Reconfigurable):
         
         
         pcd_bytes, _ = await self.camera.get_point_cloud()
-    
-        pc = decode_pcd_bytes(pcd_bytes)
+        pc = decode_pcd_bytes(pcd_bytes, self.min_range_mm)
         ppc = pc.get_planar_from_3D(axis_normal=self.normal_vector)
         ppc.normalize_point_cloud()
-    
         
         obstacles = self.detector.get_obstacles_from_planar_pcd(ppc, normalize=True)
         encoder = Encoder(pc.metadata)

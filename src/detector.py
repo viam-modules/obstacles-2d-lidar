@@ -78,12 +78,12 @@ class Detector():
                     
                     else:
                         geo =min_bb.get_scaled_geometry(scale_to= input.scale,
-                                                 prism_z_dim=self.prism_z_dim)
+                                                 prism_z_dim_mm=self.prism_z_dim)
                         res.append((cluster, geo))
 
                 else:
                     geo =min_bb.get_scaled_geometry(scale_to= input.scale,
-                                                 prism_z_dim=self.prism_z_dim)
+                                                 prism_z_dim_mm=self.prism_z_dim)
                     res.append((cluster, geo))
         
         if self.save_results:

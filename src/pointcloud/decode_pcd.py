@@ -1,6 +1,8 @@
 from .point_cloud import PointCloud
+import math
 import struct
 
+TO_M = .001
 
 def tuple_to_ordered_lists(data_tuple, fields=None):
     if len(data_tuple) % 3 != 0:
@@ -20,7 +22,7 @@ def tuple_to_ordered_lists(data_tuple, fields=None):
     return result
 
 
-def decode_pcd_bytes(pcd_bytes) -> PointCloud:
+def decode_pcd_bytes(pcd_bytes, min_range_mm=None) -> PointCloud:
     """
     returns PointCloud from pcd_bytes
     Args:
@@ -65,5 +67,16 @@ def decode_pcd_bytes(pcd_bytes) -> PointCloud:
     pcd_data = struct.unpack('f' * num_floats, binary_data)
     
     points = tuple_to_ordered_lists(pcd_data, metadata['FIELDS'])
+    points_filtered = []
+    
+    if min_range_mm is not None:
+        for point in points:
+            if math.sqrt(point[0]**2+point[1]**2+point[2]**2) > min_range_mm * TO_M:
+                points_filtered.append(point)
+
+        metadata["POINTS"] = len(points_filtered)
+        metadata["WIDTH"] = len(points_filtered)
+        
+        return PointCloud(points= points_filtered, metadata=metadata)
     
     return PointCloud(points= points, metadata=metadata)

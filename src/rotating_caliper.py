@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 from viam.proto.common import Geometry, RectangularPrism, Pose, Vector3
 from .graham_scan import GrahamScan
 
+TO_MM = 1000
+
 class Vector2d:
     def __init__(self, end, start, norm=None) -> None:
         self.end = end
@@ -74,22 +76,22 @@ class BoundingBox2D:
         return angle_between_vectors(Vector2d(self.corners[(corner-1)%4], self.corners[corner]), Vector2d(self.corners[(corner+1)%4], self.corners[corner]))
 
 
-    def get_scaled_geometry(self, scale_to:float=1, prism_z_dim:float=1) -> Geometry:
+    def get_scaled_geometry(self, scale_to:float=1, prism_z_dim_mm:float=1) -> Geometry:
         vec1 = Vector2d(self.corners[1], self.corners[0])
         vec2= Vector2d(self.corners[3], self.corners[0])
         x_rectangle = vec1.get_norm2()
         y_rectangle = vec2.get_norm2()
         theta = angle_between_vectors(Vector2d([1,0], [0,0]), vec1)
-        return Geometry(center= Pose(x=self.center[0]*scale_to,
-                                    y = self.center[1]*scale_to,  
+        return Geometry(center= Pose(x=self.center[0]*scale_to * TO_MM,
+                                    y = self.center[1]*scale_to * TO_MM,  
                                     z= 0, 
                                     o_x = 0, 
                                     o_y = 0, 
                                     o_z = 1,
                                     theta = theta),
-                                    box = RectangularPrism(dims_mm=Vector3(x = x_rectangle*scale_to,
-                                                                   y = y_rectangle*scale_to,
-                                                                   z = prism_z_dim)))
+                                    box = RectangularPrism(dims_mm=Vector3(x = x_rectangle*scale_to * TO_MM,
+                                                                   y = y_rectangle*scale_to * TO_MM,
+                                                                   z = prism_z_dim_mm)))
         
         
     def plot(self):
