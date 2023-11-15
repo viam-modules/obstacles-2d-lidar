@@ -1,5 +1,5 @@
 # Obstacles detection from planar lidar
-[Viam module](https://docs.viam.com/extend/modular-resources/) for 2D obstacles detection as a vision service. 
+This is a [Viam module](https://docs.viam.com/extend/modular-resources/) providing a model of vision service for 2D obstacle detection on machines. 
 
 <p align="center">
  <img src="https://github.com/Rob1in/obstacles-2d-lidar/blob/module/img/results.png" width=100%, height=100%>
@@ -9,7 +9,7 @@
 
 ## Getting started
 
-To use this module, you need a lidar in your robot. For instance, you can use [RPlidar](https://docs.viam.com/registry/examples/rplidar/).
+To use this module, follow these instructions to [add a module from the Viam Registry](https://docs.viam.com/modular-resources/configure/#add-a-module-from-the-viam-registry) and select the `viam:vision:obstacles_2d_lidar` model from the [`obstacles_2d_lidar` module](https://app.viam.com/module/viam/obstacles_2d_lidar).
 This module implements the method `GetObjectPointClouds()` of the [vision service API](https://docs.viam.com/services/vision/#api).
 
 ### Installation with `pip install`
@@ -18,7 +18,24 @@ This module implements the method `GetObjectPointClouds()` of the [vision servic
 pip install -r requirements.txt
 ```
 
-## Config
+## Configure your `obstacles_2d_lidar` vision service
+
+> [!NOTE]  
+> Before configuring your vision service, you must [create a robot](https://docs.viam.com/manage/fleet/robots/#add-a-new-robot).
+
+Navigate to the **Config** tab of your robot’s page in [the Viam app](https://app.viam.com/). Click on the **Services** subtab and click **Create service**. Select the `Vision` type, then select the `obstacles_2d_lidar` model. Enter a name for your service and click **Create**.
+
+On the new component panel, copy and paste the following attribute template into your vision service’s **Attributes** box. 
+```json
+{
+  "camera_name": "<your-rplidar-name>"
+}
+```
+
+> [!NOTE]  
+> For more information, see [Configure a Robot](https://docs.viam.com/manage/configuration/).
+
+
 ### Example config 
 ```json
 {
