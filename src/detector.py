@@ -10,7 +10,7 @@ from viam.logging import getLogger
 import matplotlib.pyplot as plt
 
 LOGGER = getLogger(__name__)
-
+TO_MM = 1000
 
 class Detector():
     '''
@@ -77,13 +77,13 @@ class Detector():
                         clusters.append(ppc_2)
                     
                     else:
-                        geo =min_bb.get_scaled_geometry(scale_to= input.scale,
-                                                 prism_z_dim=self.prism_z_dim)
+                        geo =min_bb.get_scaled_geometry(scale_to= input.scale * TO_MM,
+                                                 prism_z_dim_mm=self.prism_z_dim)
                         res.append((cluster, geo))
 
                 else:
-                    geo =min_bb.get_scaled_geometry(scale_to= input.scale,
-                                                 prism_z_dim=self.prism_z_dim)
+                    geo =min_bb.get_scaled_geometry(scale_to= input.scale * TO_MM,
+                                                 prism_z_dim_mm=self.prism_z_dim)
                     res.append((cluster, geo))
         
         if self.save_results:
