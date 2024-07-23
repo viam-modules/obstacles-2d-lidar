@@ -15,7 +15,10 @@ async def main():
     Registry.register_resource_creator(
         Vision.SUBTYPE,
         ObstacleDetectorModule.MODEL,
-        ResourceCreatorRegistration(ObstacleDetectorModule.new_service, ObstacleDetectorModule.validate_config))
+        ResourceCreatorRegistration(
+            ObstacleDetectorModule.new_service, ObstacleDetectorModule.validate_config
+        ),
+    )
     module = Module.from_args()
 
     module.add_model_from_registry(Vision.SUBTYPE, ObstacleDetectorModule.MODEL)

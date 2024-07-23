@@ -1,9 +1,12 @@
+# pylint: disable=missing-function-docstring
 import matplotlib.pyplot as plt
 from .pointcloud.point_cloud import PlanarPointCloud
 
+
 class GrahamScan:
-    '''
-    self.convex_hull is the convex hull as list of points in the normalized 2d axis coordinates'''
+    """
+    self.convex_hull is the convex hull as list of points in the normalized 2d axis coordinates"""
+
     def __init__(self, ppc: PlanarPointCloud):
         self.points = ppc.points_norm.tolist()
         self.convex_hull = self.compute_convex_hull()
@@ -13,9 +16,8 @@ class GrahamScan:
 
     def get_slope(self, p1, p2):
         if p1[0] == p2[0]:
-            return float('inf')
-        else:
-            return 1.0 * (p1[1] - p2[1]) / (p1[0] - p2[0])
+            return float("inf")
+        return 1.0 * (p1[1] - p2[1]) / (p1[0] - p2[0])
 
     def compute_convex_hull(self):
         hull = []
@@ -25,14 +27,16 @@ class GrahamScan:
         self.points.sort(key=lambda p: (self.get_slope(p, start), -p[1], p[0]))
         for pt in self.points:
             hull.append(pt)
-            while len(hull) > 2 and self.get_cross_product(hull[-3], hull[-2], hull[-1]) < 0:
+            while (
+                len(hull) > 2
+                and self.get_cross_product(hull[-3], hull[-2], hull[-1]) < 0
+            ):
                 hull.pop(-2)
         return hull
-    
+
     def plot(self):
         points = self.convex_hull
         x, y = zip(*points)
         x += x[:1]
         y += y[:1]
-        plt.plot(x, y, marker=None, linestyle='dashed')
-  
+        plt.plot(x, y, marker=None, linestyle="dashed")
