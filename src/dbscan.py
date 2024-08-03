@@ -42,7 +42,7 @@ def plot_dbscan_clusters(db: DBSCAN, X: np.ndarray):
     core_samples_mask = np.zeros_like(labels, dtype=bool)
     core_samples_mask[db.core_sample_indices_] = True
 
-    colors = [plt.cm.Spectral(each) for each in np.linspace(0, 1, len(unique_labels))]
+    colors = [plt.cm.Spectral(each) for each in np.linspace(0, 1, len(unique_labels))]  # pylint: disable=no-member
 
     for k, col in zip(unique_labels, colors):
         if k == -1:

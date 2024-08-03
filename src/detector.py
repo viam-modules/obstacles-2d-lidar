@@ -1,3 +1,8 @@
+"""
+This module provide a Detector class to detect obstacles from planar point
+clouds using DBSCAN and RANSAC algorithms.
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.cluster import DBSCAN

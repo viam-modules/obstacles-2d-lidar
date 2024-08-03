@@ -1,3 +1,8 @@
+"""
+This module provides a RansacRegressor class to implement
+linear RANSAC algorithm.
+"""
+
 from typing import Tuple
 
 import numpy as np

@@ -9,5 +9,14 @@
       "model": "viam:vision:obstacles_2d_lidar"
     }
   ],
-  "entrypoint": "run.sh"
+  "build": {
+    "build": "./build.sh",
+    "path": "dist/archive.tar.gz",
+    "arch": [
+      "linux/amd64",
+      "linux/arm64",
+      "darwin/arm64"
+    ]
+  },
+  "entrypoint": "dist/main"
 }

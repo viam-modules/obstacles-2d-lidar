@@ -1,3 +1,8 @@
+"""
+This module provides a Viam Vision Service module
+to perform obstacles detection on a planar point cloud.
+"""
+
 from typing import Any, ClassVar, List, Mapping, Optional, Sequence
 
 from typing_extensions import Self
@@ -32,6 +37,11 @@ class ObstacleDetectorModule(Vision, Reconfigurable):
 
     def __init__(self, name: str):
         super().__init__(name=name)
+        self.camera_name = None
+        self.camera = None
+        self.normal_vector = None
+        self.min_range_mm = None
+        self.detector = None
 
     @classmethod
     def new_service(
@@ -192,7 +202,7 @@ class ObstacleDetectorModule(Vision, Reconfigurable):
     ) -> List[Detection]:
         return NotImplementedError
 
-    async def capture_all_from_camera(
+    async def capture_all_from_camera(  # pylint: disable=too-many-locals
         self,
         camera_name: str,
         return_image: bool = False,

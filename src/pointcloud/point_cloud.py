@@ -22,6 +22,7 @@ class PlanarPointCloud:
         """
 
         self.points = np.array(points)
+        self.points_norm = None
 
         if normalize:
             self.normalize_point_cloud()

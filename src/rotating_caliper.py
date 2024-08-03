@@ -1,4 +1,9 @@
 # pylint: disable=invalid-name
+"""
+This module provides tools for vectorw calculation
+and rotating calipers algorithm.
+"""
+
 import math
 
 import matplotlib.pyplot as plt
@@ -115,17 +120,6 @@ class BoundingBox2D:
         self.center = [c_x / 4, c_y / 4]
         self.area = area
 
-    def get_area(self):
-        """
-        Returns the area of the bounding box.
-
-        Returns:
-            float: The area of the bounding box.
-        """
-        if self.area is None:
-            self.area = (self.max_x - self.min_x) * (self.max_y - self.min_y)
-        return self.area
-
     def get_angle_of_corner(self, corner: int):
         """
         Returns the angle of a specific corner of the bounding box.
@@ -189,7 +183,7 @@ class BoundingBox2D:
         plt.plot(x, y, linewidth=0.5)
 
 
-def get_minimum_bounding_box(g: GrahamScan) -> BoundingBox2D:
+def get_minimum_bounding_box(g: GrahamScan) -> BoundingBox2D:  # pylint: disable=too-many-locals
     """
     Calculates the minimum bounding box for a given set of points.
 

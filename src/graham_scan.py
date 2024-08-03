@@ -1,4 +1,8 @@
-# pylint: disable=missing-function-docstring
+"""
+This module provides GrahamScan class
+to perfor Graham scan over a planar point cloud input.
+"""
+
 import matplotlib.pyplot as plt
 from .pointcloud.point_cloud import PlanarPointCloud
 
@@ -11,15 +15,15 @@ class GrahamScan:
         self.points = ppc.points_norm.tolist()
         self.convex_hull = self.compute_convex_hull()
 
-    def get_cross_product(self, p1, p2, p3):
+    def get_cross_product(self, p1, p2, p3):  # pylint: disable=missing-function-docstring
         return ((p2[0] - p1[0]) * (p3[1] - p1[1])) - ((p2[1] - p1[1]) * (p3[0] - p1[0]))
 
-    def get_slope(self, p1, p2):
+    def get_slope(self, p1, p2):  # pylint: disable=missing-function-docstring
         if p1[0] == p2[0]:
             return float("inf")
         return 1.0 * (p1[1] - p2[1]) / (p1[0] - p2[0])
 
-    def compute_convex_hull(self):
+    def compute_convex_hull(self):  # pylint: disable=missing-function-docstring
         hull = []
         self.points.sort(key=lambda x: [x[0], x[1]])
         start = self.points.pop(0)
@@ -34,7 +38,7 @@ class GrahamScan:
                 hull.pop(-2)
         return hull
 
-    def plot(self):
+    def plot(self):  # pylint: disable=missing-function-docstring
         points = self.convex_hull
         x, y = zip(*points)
         x += x[:1]
