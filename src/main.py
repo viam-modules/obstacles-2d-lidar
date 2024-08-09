@@ -3,7 +3,7 @@ import asyncio
 from viam.services.vision import Vision
 from viam.module.module import Module
 from viam.resource.registry import Registry, ResourceCreatorRegistration
-from .obstacles_2d_module import ObstacleDetectorModule
+from src.obstacles_2d_module import ObstacleDetectorModule
 
 
 async def main():
@@ -15,7 +15,10 @@ async def main():
     Registry.register_resource_creator(
         Vision.SUBTYPE,
         ObstacleDetectorModule.MODEL,
-        ResourceCreatorRegistration(ObstacleDetectorModule.new_service, ObstacleDetectorModule.validate_config))
+        ResourceCreatorRegistration(
+            ObstacleDetectorModule.new_service, ObstacleDetectorModule.validate_config
+        ),
+    )
     module = Module.from_args()
 
     module.add_model_from_registry(Vision.SUBTYPE, ObstacleDetectorModule.MODEL)

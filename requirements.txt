@@ -1,5 +1,11 @@
 numpy
-viam-sdk==0.6.1
+viam-sdk==0.25.2
 scikit-learn
 scipy
 matplotlib
+pyinstaller
+
+##for testing
+pytest
+pytest-asyncio
+pylint
