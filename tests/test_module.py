@@ -95,7 +95,7 @@ class TestMotionDetector:
     async def test_capture_all_from_camera(self):
         service = get_vision_service(WORKING_CONFIG_DICT)
         capture_all_result = await service.capture_all_from_camera(
-            "test",
+            CAMERA_NAME,
             return_image=True,
             return_classifications=True,
             return_detections=True,
@@ -104,6 +104,29 @@ class TestMotionDetector:
         check_pcd_result(capture_all_result.objects)
         assert isinstance(capture_all_result.image, ViamImage)
         assert capture_all_result.image.mime_type == CameraMimeType.PCD
+
+    @pytest.mark.asyncio
+    async def test_default_camera(self):
+        service = get_vision_service(WORKING_CONFIG_DICT)
+        result = await service.get_object_point_clouds("")
+        check_pcd_result(result)
+
+        result = await service.capture_all_from_camera(
+            "",
+            return_object_point_clouds=True,
+        )
+        check_pcd_result(result.objects)
+
+        with pytest.raises(ValueError) as excinfo:
+            await service.get_object_point_clouds("not-camera")
+        assert "not-camera" in str(excinfo.value)
+
+        with pytest.raises(ValueError) as excinfo:
+            await service.capture_all_from_camera(
+                "not-camera",
+                return_object_point_clouds=True,
+            )
+        assert "not-camera" in str(excinfo.value)
 
 
 def check_pcd_result(
