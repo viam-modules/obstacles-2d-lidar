@@ -141,6 +141,13 @@ class ObstacleDetectorModule(Vision, Reconfigurable):
         extra: Optional[Mapping[str, Any]] = None,
         timeout: Optional[float] = None,
     ) -> List[PointCloudObject]:
+        if camera_name not in (self.camera_name, ""):
+            raise ValueError(
+                "Camera name passed to method:",
+                camera_name,
+                "is not the configured 'camera_name'",
+                self.camera_name,
+            )
         pcd_bytes, _ = await self.camera.get_point_cloud()
         pc = decode_pcd_bytes(pcd_bytes, self.min_range_mm)
         ppc = pc.get_planar_from_3D(axis_normal=self.normal_vector)
@@ -231,7 +238,13 @@ class ObstacleDetectorModule(Vision, Reconfigurable):
         Returns:
             CaptureAllResult: _description_
         """
-
+        if camera_name not in (self.camera_name, ""):
+            raise ValueError(
+                "Camera name passed to method:",
+                camera_name,
+                "is not the configured 'camera_name'",
+                self.camera_name,
+            )
         pcd_bytes, _ = await self.camera.get_point_cloud()
         pc = decode_pcd_bytes(pcd_bytes, self.min_range_mm)
         ppc = pc.get_planar_from_3D(axis_normal=self.normal_vector)
