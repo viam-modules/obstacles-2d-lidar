@@ -6,7 +6,9 @@
   "models": [
     {
       "api": "rdk:service:vision",
-      "model": "viam:vision:obstacles_2d_lidar"
+      "model": "viam:vision:obstacles_2d_lidar",
+      "short_description": "Detects obstacles in a point cloud.",
+      "markdown_link": "README.md#viamvisionobstacles_2d_lidar"
     }
   ],
   "build": {
