@@ -154,8 +154,8 @@ class Detector:
         core_samples_mask = np.zeros_like(labels, dtype=bool)
         core_samples_mask[self.dbscan.core_sample_indices_] = True
 
-        for l in unique_labels:
-            class_member_mask = labels == l
+        for label in unique_labels:
+            class_member_mask = labels == label
             mask = class_member_mask & core_samples_mask
             if mask.sum() > self.min_points_cluster:
                 cluster = ppc.get_ppc_from_mask(mask)
