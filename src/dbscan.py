@@ -1,9 +1,9 @@
 # pylint: disable=invalid-name
 
-import numpy as np
-
-from sklearn.cluster import DBSCAN
 import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.cluster import DBSCAN
+
 from src.pointcloud.point_cloud import PlanarPointCloud
 
 

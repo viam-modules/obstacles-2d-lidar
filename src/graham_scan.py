@@ -4,6 +4,7 @@ to perfor Graham scan over a planar point cloud input.
 """
 
 import matplotlib.pyplot as plt
+
 from .pointcloud.point_cloud import PlanarPointCloud
 
 
