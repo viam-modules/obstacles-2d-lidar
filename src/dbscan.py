@@ -1,9 +1,9 @@
 # pylint: disable=invalid-name
 
-import numpy as np
-
-from sklearn.cluster import DBSCAN
 import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.cluster import DBSCAN
+
 from src.pointcloud.point_cloud import PlanarPointCloud
 
 
@@ -84,8 +84,8 @@ def build_ppc_from_dbscan(
     core_samples_mask = np.zeros_like(labels, dtype=bool)
     core_samples_mask[db.core_sample_indices_] = True
 
-    for l in unique_labels:
-        class_member_mask = labels == l
+    for label in unique_labels:
+        class_member_mask = labels == label
         sub_points = points[class_member_mask & core_samples_mask]
         ppcs.append(PlanarPointCloud(sub_points, normalized))
 

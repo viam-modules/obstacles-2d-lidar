@@ -1,8 +1,9 @@
 import asyncio
 
-from viam.services.vision import Vision
 from viam.module.module import Module
 from viam.resource.registry import Registry, ResourceCreatorRegistration
+from viam.services.vision import Vision
+
 from src.obstacles_2d_module import ObstacleDetectorModule
 
 
