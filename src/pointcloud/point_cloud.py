@@ -134,7 +134,7 @@ def plot_dbscan_clusters(db: DBSCAN, X: np.ndarray):
     unique_labels = set(labels)
     core_samples_mask = np.zeros_like(labels, dtype=bool)
     core_samples_mask[db.core_sample_indices_] = True
-    cmap = plt.cm.get_cmap("Spectral")
+    cmap = plt.colormaps["Spectral"]
     colors = [cmap(each) for each in np.linspace(0, 1, len(unique_labels))]
 
     for k, col in zip(unique_labels, colors):
