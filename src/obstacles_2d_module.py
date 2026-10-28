@@ -12,7 +12,7 @@ from viam.media.video import CameraMimeType, ViamImage
 from viam.module.types import Reconfigurable
 from viam.proto.app.robot import ServiceConfig
 from viam.proto.common import GeometriesInFrame, PointCloudObject, ResourceName
-from viam.proto.service.vision import Classification, Detection
+from viam.proto.service.vision import Classification, Detection, Detection3D
 from viam.resource.base import ResourceBase
 from viam.resource.types import (
     Model,
@@ -66,6 +66,7 @@ class ObstacleDetectorModule(Vision, Reconfigurable):
     def reconfigure(
         self, config: ServiceConfig, dependencies: Mapping[ResourceName, ResourceBase]
     ):
+        "reconfigures the module with the given config and dependencies"
         self.camera_name = config.attributes.fields["camera_name"].string_value
         self.camera = dependencies[Camera.get_resource_name(self.camera_name)]
 
@@ -209,6 +210,16 @@ class ObstacleDetectorModule(Vision, Reconfigurable):
     ) -> List[Detection]:
         return NotImplementedError
 
+    async def get_detections_3d(
+        self,
+        camera_name: str,
+        *,
+        extra: Optional[Mapping[str, Any]] = None,
+        timeout: Optional[float] = None,
+    ) -> List[Detection3D]:
+        "returns 3d detections"
+        return NotImplementedError
+
     async def capture_all_from_camera(  # pylint: disable=too-many-locals
         self,
         camera_name: str,
@@ -216,6 +227,7 @@ class ObstacleDetectorModule(Vision, Reconfigurable):
         return_classifications: bool = False,
         return_detections: bool = False,
         return_object_point_clouds: bool = False,
+        return_detections_3d: bool = False,
         *,
         extra: Optional[Mapping[str, Any]] = None,
         timeout: Optional[float] = None,
